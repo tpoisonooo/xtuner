@@ -121,3 +121,7 @@ work_dirs/
 # srun
 *.out
 batchscript-*
+train_data
+test_data
+output-hf
+output_merge

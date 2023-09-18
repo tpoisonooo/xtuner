@@ -4,12 +4,11 @@ import re
 
 import torch
 from peft import PeftModel
-from transformers import (AutoModelForCausalLM, AutoTokenizer,
+from transformers import (AutoModelForCausalLM, AutoTokenizer, LlamaTokenizer,
                           BitsAndBytesConfig, GenerationConfig)
 
 from xtuner.tools.utils import get_chat_utils, update_stop_criteria
 from xtuner.utils import PROMPT_TEMPLATE
-
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Chat with a HF model')
@@ -115,7 +114,7 @@ def main():
         args.model_name_or_path,
         quantization_config=quantization_config,
         trust_remote_code=True)
-    tokenizer = AutoTokenizer.from_pretrained(
+    tokenizer = LlamaTokenizer.from_pretrained(
         args.model_name_or_path, trust_remote_code=True)
     if args.adapter is not None:
         model = PeftModel.from_pretrained(model, args.adapter)
@@ -174,7 +173,7 @@ def main():
             inputs += prompt_text
         else:
             inputs += text
-        ids = tokenizer.encode(inputs, return_tensors='pt')
+        ids = tokenizer.encode(inputs, return_tensors='pt', padding="longest", max_length=8192, truncation=True, return_attention_mask=True, add_special_tokens=True)
         streamer = Streamer(tokenizer) if Streamer is not None else None
         if args.with_plugins is not None:
             generate_output = model.generate(
@@ -197,7 +196,7 @@ def main():
             end = '' if extent_text[-1] == '\n' else '\n'
             print(extent_text, end=end)
             extent_text_ids = tokenizer.encode(
-                extent_text, return_tensors='pt', add_special_tokens=False)
+                extent_text, return_tensors='pt', padding="longest", max_length=8192, truncation=True, return_attention_mask=True, add_special_tokens=True)
             new_ids = torch.cat((generate_output, extent_text_ids), dim=1)
             new_streamer = Streamer(
                 tokenizer) if Streamer is not None else None
@@ -222,7 +221,8 @@ def main():
                     generate_output[0][len(ids[0]):])
                 end = '' if output_text[-1] == '\n' else '\n'
                 print(output_text, end=end)
-        inputs = tokenizer.decode(generate_output[0])
+        print('out', generate_output[0])
+        inputs = tokenizer.decode(generate_output[0], skip_special_tokens=True)
         n_turn += 1
         if len(generate_output[0]) >= args.max_new_tokens:
             print('Remove the memory of history responses, since '

@@ -3,6 +3,6 @@ def openorca_map_fn(example):
     return {
         'conversation': [{
             'input': example['question'],
-            'output': example['response']
+            'output': example['answer']
         }]
     }

@@ -3,7 +3,7 @@ import argparse
 
 import torch
 from peft import PeftModel
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, LlamaTokenizer
 
 
 def parse_args():
@@ -26,8 +26,9 @@ def main():
         low_cpu_mem_usage=True,
         device_map='cpu',
         trust_remote_code=True)
-    tokenizer = AutoTokenizer.from_pretrained(
-        args.model_name_or_path, trust_remote_code=True)
+    tokenizer =LlamaTokenizer.from_pretrained(
+        args.model_name_or_path, trust_remote_code=True,
+        padding="longest", max_length=8192, truncation=True, return_attention_mask=True, add_special_tokens=True)
     model_unmerged = PeftModel.from_pretrained(
         model,
         args.adapter_name_or_path,

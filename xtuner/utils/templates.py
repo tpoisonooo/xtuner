@@ -48,6 +48,12 @@ PROMPT_TEMPLATE = ConfigDict(
     internlm_chat=dict(
         INSTRUCTION_START='<|User|>:{input}<eoh>\n<|Bot|>:',
         INSTRUCTION='<|User|>:{input}<eoh>\n<|Bot|>:'),
+    yulan_chat=dict(
+        INSTRUCTION_START='The following is a conversation between a human and '
+            'an AI assistant namely YuLan, developed by GSAI, Renmin University '
+            'of China. The AI assistant gives helpful, detailed, and polite answers '
+            'to the user\'s questions.\n[|Human|]:{input}\n[|AI|]:',
+        INSTRUCTION='[|Human|]:{input}\n[|AI|]:'),
     coder=dict(
         INSTRUCTION_START='### Human: {input}\n### Bot: ',
         INSTRUCTION='### Human: {input}\n### Bot: '),
